@@ -1,0 +1,10 @@
+42.67122010521286, -83.2154455753298
+
+api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
+
+pip install flask flask-cors requests python-dotenv
+
+
+
+python3 backend.py
+open http://127.0.0.1:5000 in the browser

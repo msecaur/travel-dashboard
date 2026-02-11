@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travel-Dashboard</title>
+  </head>
+  <body>
+    <h1>Welcome to Travel Dashboard!</h1>
+    <input type="text" id="lat" placeholder="latitude" />
+    <input type="text" id="lon" placeholder="longitude" />
+    <button onclick="sendData()">Get Weather</button>
+
+    <div id="results"></div>
+
+    <script>
+      async function sendData() {
+        const lat = document.getElementById("lat").value;
+        const lon = document.getElementById("lon").value;
+
+        // Change this line in your index.html
+        const response = await fetch("http://127.0.0.1:5000/get_weather", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lat: lat, lon: lon }),
+        });
+
+        const data = await response.json();
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = ""; // Clear old results
+
+        data.forEach((day) => {
+          resultsDiv.innerHTML += `<p>${day.date}: ${day.temp}°F - ${day.desc}</p>`;
+        });
+      }
+    </script>
+  </body>
+</html>
