@@ -1,0 +1,126 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    padding: 20px;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    text-align: center;
+}
+
+header h1 {
+    font-weight: 600;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+header p {
+    font-weight: 300;
+    margin-bottom: 30px;
+    opacity: 0.8;
+}
+
+/* Input Styles */
+.search-box {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+input {
+    padding: 12px 20px;
+    border-radius: 30px;
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 1rem;
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+button {
+    padding: 12px 30px;
+    border-radius: 30px;
+    border: none;
+    background: #ff7e5f;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+button:hover {
+    background: #feb47b;
+    transform: translateY(-2px);
+}
+
+/* Forecast Cards */
+.forecast-container {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.weather-card {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 20px;
+    border-radius: 15px;
+    width: 150px;
+    transition: scale 0.3s;
+}
+
+.weather-card:hover {
+    scale: 1.05;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.weather-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.weather-card .date {
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 15px;
+    opacity: 0.7;
+}
+
+.weather-card .temp {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.weather-card .desc {
+    font-size: 0.9rem;
+    text-transform: capitalize;
+}
+
+.loading { font-style: italic; opacity: 0.8; }

@@ -4,34 +4,67 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Travel-Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
-    <h1>Welcome to Travel Dashboard!</h1>
-    <input type="text" id="lat" placeholder="latitude" />
-    <input type="text" id="lon" placeholder="longitude" />
-    <button onclick="sendData()">Get Weather</button>
+    <div class="container">
+      <header>
+        <h1>Travel Dashboard</h1>
+        <p>Enter coordinates to see the 5-day forecast</p>
+      </header>
 
-    <div id="results"></div>
+      <div class="search-box">
+        <input type="text" id="lat" placeholder="Latitude (e.g. 40.71)" />
+        <input type="text" id="lon" placeholder="Longitude (e.g. -74.00)" />
+        <button onclick="sendData()">Get Weather</button>
+      </div>
+
+      <div id="results" class="forecast-container">
+        </div>
+    </div>
 
     <script>
       async function sendData() {
         const lat = document.getElementById("lat").value;
         const lon = document.getElementById("lon").value;
-
-        // Change this line in your index.html
-        const response = await fetch("http://127.0.0.1:5000/get_weather", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ lat: lat, lon: lon }),
-        });
-
-        const data = await response.json();
         const resultsDiv = document.getElementById("results");
-        resultsDiv.innerHTML = ""; // Clear old results
 
-        data.forEach((day) => {
-          resultsDiv.innerHTML += `<p>${day.date}: ${day.temp}°F - ${day.desc}</p>`;
-        });
+        if(!lat || !lon) {
+            alert("Please enter both latitude and longitude.");
+            return;
+        }
+
+        resultsDiv.innerHTML = "<p class='loading'>Fetching the skies...</p>";
+
+        try {
+            const response = await fetch("/get_weather", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ lat: lat, lon: lon }),
+            });
+
+            const data = await response.json();
+            resultsDiv.innerHTML = ""; 
+
+            data.forEach((day) => {
+              // Create a card for each forecast day
+              const dateObj = new Date(day.date);
+              const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+              const shortDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+              resultsDiv.innerHTML += `
+                <div class="weather-card">
+                    <h3>${dayName}</h3>
+                    <span class="date">${shortDate}</span>
+                    <div class="temp">${Math.round(day.temp)}°F</div>
+                    <p class="desc">${day.desc}</p>
+                </div>
+              `;
+            });
+        } catch (error) {
+            resultsDiv.innerHTML = "<p class='error'>Failed to load data. Check your API key or coordinates.</p>";
+        }
       }
     </script>
   </body>

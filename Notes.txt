@@ -1,4 +1,6 @@
 42.67122010521286, -83.2154455753298
+42.67, -83.21
+
 
 api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
 
