@@ -117,6 +117,9 @@ python3 backend.py
 *** SKIP STEP 8 ***
 
 8.
+Set Up Nginx (The Web Server)
+Nginx sits in front of Gunicorn to handle incoming web traffic. Create a config file:
+
 sudo nano /etc/nginx/sites-available/myproject
 
 server {
