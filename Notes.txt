@@ -106,7 +106,7 @@ pip install dotenv
 
 touch .env
 ...
-OPENWEATHER_API_KEY = "520a727a926f50da1cbe79c2279cb526"
+OPENWEATHER_API_KEY = "..."
 
 
 7. 
