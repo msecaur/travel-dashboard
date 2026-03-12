@@ -10,3 +10,182 @@ pip install flask flask-cors requests python-dotenv
 
 python3 backend.py
 open http://127.0.0.1:5000 in the browser
+
+
+Google Flights:
+
+https://serpapi.com/dashboard
+https://serpapi.com/google-flights-results
+
+
+Events:
+
+get PlaceID from longitude and laditude
+https://developers.google.com/maps/documentation/javascript/examples/geocoding-reverse#maps_geocoding_reverse-typescript
+
+https://developers.google.com/maps/documentation/places/web-service/place-details
+
+(need business email)
+https://docs.predicthq.com/sdks/python-sdk
+https://github.com/predicthq/sdk-py/blob/master/usecases/events/search_by_location.py
+
+3/10/2026
+
+ssh -i "travel-dashboard-keypair.pem" ubuntu@ec2-3-147-104-86.us-east-2.compute.amazonaws.com
+
+in the ec2 instance:
+sudo apt update && sudo apt upgrade -y
+sudo apt install python3-pip python3-venv nginx -y
+
+git clone https://github.com/msecaur/travel-dashboard.git
+
+cd travel-dashboard/
+
+python3 -m venv venv
+source venv/bin/activate
+pip install flask gunicorn  # or fastapi, etc.
+pip install requests
+
+
+sudo nano /etc/nginx/sites-available/myapp
+
+sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled
+
+sudo nginx -t && sudo systemctl restart nginx
+
+sudo nano /etc/systemd/system/travel-dashboard.service
+
+sudo systemctl daemon-reload
+
+sudo systemctl start travel-dashboard
+
+
+
+
+
+
+{
+  "text": "$.txt",
+  "language": "en"
+}
+
+
+
+3/11/2026 22:20
+
+Steps to putting our project on an ec2 instance and being able to run it from the public ip of the ec2 instance
+
+1. Create an ec2 instance with Ubuntu and save the security key that ends in .pem
+
+2. Open a local terminal and run this command to "ssh" into it or "connect" to it
+
+ssh -i "Travel-Dashboard-ec2-part3.pem" ubuntu@ec2-3-133-107-69.us-east-2.compute.amazonaws.com
+
+3. Once in, do some upgrading and installing
+
+sudo apt update && sudo apt upgrade -y
+sudo apt install python3-pip python3-venv nginx git -y
+
+4. Clone the repo:
+
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
+
+5. I guess create an enviroment and install more dependencies:
+
+python3 -m venv venv
+source venv/bin/activate
+pip install flask gunicorn  # And any other dependencies
+
+(more dependencies...)
+
+pip install requests
+pip install dotenv
+
+6. Don't forget the .env file that didn't come with the cloning that contains the keys for the weather api calls:
+
+touch .env
+...
+OPENWEATHER_API_KEY = "520a727a926f50da1cbe79c2279cb526"
+
+
+7. 
+gunicorn --bind 0.0.0.0:8000 backend:app
+python3 backend.py
+
+
+*** SKIP STEP 8 ***
+
+8.
+sudo nano /etc/nginx/sites-available/myproject
+
+server {
+    listen 80;
+    server_name 3.133.107.69;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://localhost:8000;
+    }
+}
+
+sudo ln -s /etc/nginx/sites-available/myproject /etc/nginx/sites-enabled
+sudo nginx -t
+sudo systemctl restart nginx
+
+8.5.
+Attempted no hang up but this is for chumps so we're NOT doing
+XXX (nohup gunicorn --bind 0.0.0.0:8000 backend:app &) XXX
+
+*** SKIP STEP 8 ***
+
+
+9.
+
+Creating a Systemd Service
+You don't want your app to die when you close your SSH terminal. A systemd service keeps it running in the background automatically.
+
+sudo nano /etc/systemd/system/myflaskapp.service
+
+[Unit]
+Description=Gunicorn instance to serve my flask app
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/travel-dashboard
+Environment="PATH=/home/ubuntu/travel-dashboard/venv/bin"
+ExecStart=/home/ubuntu/travel-dashboard/venv/bin/gunicorn --bind 0.0.0.0:8000 b>
+
+[Install]
+WantedBy=multi-user.target
+
+9.5.
+sudo systemctl start myflaskapp
+sudo systemctl enable myflaskapp
+
+
+10.
+
+Configuring Nginx as a Reverse Proxy
+Nginx handles incoming web traffic on port 80 (HTTP) and passes it to Gunicorn on port 8000. This is faster and more secure.    
+
+sudo nano /etc/nginx/sites-available/myflaskapp
+
+server {
+    listen 80;
+    server_name 3.133.107.69;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+10.5.
+
+sudo ln -s /etc/nginx/sites-available/myflaskapp /etc/nginx/sites-enabled/
+sudo nginx -t           # Check for syntax errors
+sudo systemctl restart nginx
