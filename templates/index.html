@@ -4,8 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Travel-Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
   </head>
   <body>
     <div class="container">
@@ -14,46 +20,63 @@
         <p>Enter coordinates to see the 5-day forecast</p>
       </header>
 
-      <div class="search-box">
+      <!-- <div class="search-box">
         <input type="text" id="lat" placeholder="Latitude (e.g. 40.71)" />
         <input type="text" id="lon" placeholder="Longitude (e.g. -74.00)" />
         <button onclick="sendData()">Get Weather</button>
+      </div> -->
+      <div class="search-box">
+        <input
+          type="text"
+          id="city"
+          placeholder="City Name (e.g. New York City)"
+        /><button onclick="sendCityData()">Get Weather for City</button>
       </div>
 
-      <div id="results" class="forecast-container">
-        </div>
+      <div id="results" class="forecast-container"></div>
+      <div id="results2" class="events-container"></div>
     </div>
 
     <script>
-      async function sendData() {
-        const lat = document.getElementById("lat").value;
-        const lon = document.getElementById("lon").value;
+      async function sendCityData() {
+        const city = document.getElementById("city").value;
         const resultsDiv = document.getElementById("results");
+        const results2Div = document.getElementById("results2");
 
-        if(!lat || !lon) {
-            alert("Please enter both latitude and longitude.");
-            return;
+        if (!city) {
+          alert("Please enter a City name");
+          return;
         }
 
-        resultsDiv.innerHTML = "<p class='loading'>Fetching the skies...</p>";
+        resultsDiv.innerHTML = "<p class='loading'>Fetching the Skies...</p>";
+        results2Div.innerHTML = "<p class='loading'>Fetching the Events...</p>";
 
         try {
-            const response = await fetch("/get_weather", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ lat: lat, lon: lon }),
+          const response = await fetch("/get_city_weather", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ city: city }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Server returned an error for get city weather");
+          }
+
+          const data = await response.json();
+          resultsDiv.innerHTML = "";
+
+          data.forEach((day) => {
+            // Create a card for each forecast day
+            const dateObj = new Date(day.date);
+            const dayName = dateObj.toLocaleDateString("en-US", {
+              weekday: "long",
+            });
+            const shortDate = dateObj.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
             });
 
-            const data = await response.json();
-            resultsDiv.innerHTML = ""; 
-
-            data.forEach((day) => {
-              // Create a card for each forecast day
-              const dateObj = new Date(day.date);
-              const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-              const shortDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-              resultsDiv.innerHTML += `
+            resultsDiv.innerHTML += `
                 <div class="weather-card">
                     <h3>${dayName}</h3>
                     <span class="date">${shortDate}</span>
@@ -61,9 +84,98 @@
                     <p class="desc">${day.desc}</p>
                 </div>
               `;
-            });
+          });
         } catch (error) {
-            resultsDiv.innerHTML = "<p class='error'>Failed to load data. Check your API key or coordinates.</p>";
+          resultsDiv.innerHTML =
+            "<p class='error'>Failed to load City data. Check your API key or coordinates.</p>";
+        }
+
+        try {
+          const response2 = await fetch("/get_city_events", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ city: city }),
+          });
+
+          if (!response2.ok) {
+            throw new Error("Server returned an error for get city events");
+          }
+
+          const data = await response2.json();
+          results2Div.innerHTML = "";
+
+          data.forEach((event) => {
+            // Extracting fields from the SerpApi event object
+            const title = event.title;
+            const when = event.date.when; // e.g., "Sat, Mar 28, 3 – 9 PM"
+            const venueName = event.venue.name;
+            const eventLink = event.link;
+            const thumbnail = event.thumbnail;
+
+            results2Div.innerHTML += `
+        <div class="event-card">
+            ${thumbnail ? `<img src="${thumbnail}" alt="${title}" class="event-img">` : ""}
+            <div class="event-info">
+                <h3>${title}</h3>
+                <p class="event-date"><strong>When:</strong> ${when}</p>
+                <p class="event-venue"><strong>Location:</strong> ${venueName}</p>
+                <a href="${eventLink}" target="_blank" class="event-btn">View Tickets</a>
+            </div>
+        </div>
+    `;
+          });
+        } catch (error) {
+          console.log(error);
+          results2Div.innerHTML =
+            "<p class='error'>Failed to load City Events. Check your API key.</p>";
+        }
+      }
+
+      async function sendData() {
+        const lat = document.getElementById("lat").value;
+        const lon = document.getElementById("lon").value;
+        const resultsDiv = document.getElementById("results");
+
+        if (!lat || !lon) {
+          alert("Please enter both latitude and longitude.");
+          return;
+        }
+
+        resultsDiv.innerHTML = "<p class='loading'>Fetching the skies...</p>";
+
+        try {
+          const response = await fetch("/get_weather", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lat: lat, lon: lon }),
+          });
+
+          const data = await response.json();
+          resultsDiv.innerHTML = "";
+
+          data.forEach((day) => {
+            // Create a card for each forecast day
+            const dateObj = new Date(day.date);
+            const dayName = dateObj.toLocaleDateString("en-US", {
+              weekday: "long",
+            });
+            const shortDate = dateObj.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
+
+            resultsDiv.innerHTML += `
+                <div class="weather-card">
+                    <h3>${dayName}</h3>
+                    <span class="date">${shortDate}</span>
+                    <div class="temp">${Math.round(day.temp)}°F</div>
+                    <p class="desc">${day.desc}</p>
+                </div>
+              `;
+          });
+        } catch (error) {
+          resultsDiv.innerHTML =
+            "<p class='error'>Failed to load data. Check your API key or coordinates.</p>";
         }
       }
     </script>

@@ -192,3 +192,25 @@ server {
 sudo ln -s /etc/nginx/sites-available/myflaskapp /etc/nginx/sites-enabled/
 sudo nginx -t           # Check for syntax errors
 sudo systemctl restart nginx
+
+3/23/2026
+
+pip install geopy
+from geopy.geocoders import Nominatim
+
+# Initialize the geolocator API with a custom user agent
+# It is important to specify a user_agent unique to your application
+geolocator = Nominatim(user_agent="your_app_name")
+
+# Specify the city or location name
+city_name = "New York City"
+
+# Use the geocode method to get the location data
+location = geolocator.geocode(city_name)
+
+if location:
+    print(f"City: {city_name}")
+    print(f"Latitude: {location.latitude}")
+    print(f"Longitude: {location.longitude}")
+else:
+    print(f"Could not find coordinates for {city_name}")

@@ -57,6 +57,7 @@ input {
     background: rgba(255, 255, 255, 0.2);
     color: white;
     font-size: 1rem;
+    width: 400px;
 }
 
 input::placeholder {
@@ -124,3 +125,31 @@ button:hover {
 }
 
 .loading { font-style: italic; opacity: 0.8; }
+
+.event-card {
+    display: flex;
+    gap: 15px;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    align-items: center;
+}
+
+.event-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.event-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 12px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
