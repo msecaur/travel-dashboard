@@ -33,6 +33,14 @@
         /><button onclick="sendCityData()">Get City Information</button>
       </div>
 
+<form action="/send_email" method="POST">
+    <input type="hidden" name="weather" value="{{ weather }}">
+    <input type="hidden" name="events" value="{{ events }}">
+
+    <input type="email" name="email" placeholder="Enter your email" required>
+    <button type="submit">Send to Email</button>
+</form>
+
       <div id="results1" class="time-container"></div>
       <div id="results2"></div>
       <div id="results3" class="events-container"></div>

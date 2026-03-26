@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for, redirect
 from dotenv import load_dotenv
 from geopy.geocoders import Nominatim
 import serpapi
@@ -9,6 +9,18 @@ from timezonefinder import TimezoneFinder
 from datetime import datetime
 import pytz # Use zoneinfo if on Python 3.9+
 
+    #email form
+
+def send_email_summary(weather, events, email):
+    url = "http://localhost:5678/webhook/send-email"
+
+    response = requests.post(url, json={
+        "weather": weather,
+        "events": events,
+        "email": email
+    })
+
+    return response.json()
 
 load_dotenv()
 app = Flask(__name__)
@@ -158,6 +170,22 @@ def get_weather():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+@app.route('/send_email', methods=['POST'])
+def send_email():
+    data = request.get_json()
+
+    weather = data.get('weather')
+    events = data.get('events')
+    email = data.get('email')
+
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
+
+    try:
+        send_email_summary(weather, events, email)
+        return jsonify({"status": "Email sent successfully"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
