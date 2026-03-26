@@ -30,40 +30,72 @@
           type="text"
           id="city"
           placeholder="City Name (e.g. New York City)"
-        /><button onclick="sendCityData()">Get Weather for City</button>
+        /><button onclick="sendCityData()">Get City Information</button>
       </div>
 
-      <div id="results" class="forecast-container"></div>
-      <div id="results2" class="events-container"></div>
+      <div id="results1" class="time-container"></div>
+      <div id="results2" class="forecast-container"></div>
+      <div id="results3" class="events-container"></div>
     </div>
 
     <script>
       async function sendCityData() {
         const city = document.getElementById("city").value;
-        const resultsDiv = document.getElementById("results");
+        const results1Div = document.getElementById("results1");
         const results2Div = document.getElementById("results2");
+        const results3Div = document.getElementById("results3");
 
         if (!city) {
           alert("Please enter a City name");
           return;
         }
 
-        resultsDiv.innerHTML = "<p class='loading'>Fetching the Skies...</p>";
-        results2Div.innerHTML = "<p class='loading'>Fetching the Events...</p>";
+        results1Div.innerHTML = "<p class='loading'>Fetching the Time...</p>";
+        results2Div.innerHTML = "<p class='loading'>Fetching the Skies...</p>";
+        results3Div.innerHTML = "<p class='loading'>Fetching the Events...</p>";
 
+        // Try fetching the Timezone and time
         try {
-          const response = await fetch("/get_city_weather", {
+          const response1 = await fetch("/get_city_time", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ city: city }),
           });
 
-          if (!response.ok) {
+          if (!response1.ok) {
+            throw new Error("Server returned an error for get city time");
+          }
+
+          const data = await response1.json();
+          results1Div.innerHTML = "";
+
+          const timezone = data.timezone;
+          const time = data.current_time;
+
+          results1Div.innerHTML += `<div class="time-card">
+            <p><strong>City Timezone: </strong>${timezone}</p>
+            <p><strong>Current Time: </strong>${time}</p>
+            </div>`;
+        } catch (error) {
+          console.log(error);
+          results1Div.innerHTML =
+            "<p class='error'>Failed to load Time and Timezone.</p>";
+        }
+
+        // Try fetching the Weather
+        try {
+          const response2 = await fetch("/get_city_weather", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ city: city }),
+          });
+
+          if (!response2.ok) {
             throw new Error("Server returned an error for get city weather");
           }
 
-          const data = await response.json();
-          resultsDiv.innerHTML = "";
+          const data = await response2.json();
+          results2Div.innerHTML = "";
 
           data.forEach((day) => {
             // Create a card for each forecast day
@@ -76,7 +108,7 @@
               day: "numeric",
             });
 
-            resultsDiv.innerHTML += `
+            results2Div.innerHTML += `
                 <div class="weather-card">
                     <h3>${dayName}</h3>
                     <span class="date">${shortDate}</span>
@@ -86,23 +118,25 @@
               `;
           });
         } catch (error) {
-          resultsDiv.innerHTML =
-            "<p class='error'>Failed to load City data. Check your API key or coordinates.</p>";
+          console.log(error);
+          results2Div.innerHTML =
+            "<p class='error'>Failed to load Weather data. Check your API key or coordinates.</p>";
         }
 
+        // Try fetching the Events
         try {
-          const response2 = await fetch("/get_city_events", {
+          const response3 = await fetch("/get_city_events", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ city: city }),
           });
 
-          if (!response2.ok) {
+          if (!response3.ok) {
             throw new Error("Server returned an error for get city events");
           }
 
-          const data = await response2.json();
-          results2Div.innerHTML = "";
+          const data = await response3.json();
+          results3Div.innerHTML = "";
 
           data.forEach((event) => {
             // Extracting fields from the SerpApi event object
@@ -112,7 +146,7 @@
             const eventLink = event.link;
             const thumbnail = event.thumbnail;
 
-            results2Div.innerHTML += `
+            results3Div.innerHTML += `
         <div class="event-card">
             ${thumbnail ? `<img src="${thumbnail}" alt="${title}" class="event-img">` : ""}
             <div class="event-info">
@@ -126,7 +160,7 @@
           });
         } catch (error) {
           console.log(error);
-          results2Div.innerHTML =
+          results3Div.innerHTML =
             "<p class='error'>Failed to load City Events. Check your API key.</p>";
         }
       }

@@ -80,6 +80,17 @@ button:hover {
     transform: translateY(-2px);
 }
 
+
+.time-card {
+    display: flex;
+    gap: 15px;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    align-items: center;
+}
+
 /* Forecast Cards */
 .forecast-container {
     display: flex;

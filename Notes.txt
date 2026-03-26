@@ -214,3 +214,20 @@ if location:
     print(f"Longitude: {location.longitude}")
 else:
     print(f"Could not find coordinates for {city_name}")
+
+3/25/2026
+
+git log --oneline --graph --decorate --all
+git show b9bd174
+sudo systemctl restart nginx
+sudo nginx -t
+sudo systemctl status nginx
+git show b6b037e --stat
+
+cd /etc/nginx/sites-available/
+ls
+
+sudo systemctl restart myflaskapp.service
+
+sudo systemctl status myflaskapp
+sudo systemctl restart myflaskapp

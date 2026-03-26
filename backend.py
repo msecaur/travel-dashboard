@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 from geopy.geocoders import Nominatim
 import serpapi
 
+from timezonefinder import TimezoneFinder
+from datetime import datetime
+import pytz # Use zoneinfo if on Python 3.9+
+
 
 load_dotenv()
 app = Flask(__name__)
@@ -14,6 +18,48 @@ SERP_API_KEY = os.getenv('SERP_API_KEY')
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route("/get_city_time", methods=['POST'])
+def get_time_and_timezone():
+    """
+    Gets the current time and timezone for a given city name.
+    """
+    data = request.get_json()
+    city_name = data.get('city')
+    geolocator = Nominatim(user_agent="city_time_app")
+    location = geolocator.geocode(city_name)
+
+    if not location:
+        return f"Could not find coordinates for {city_name}"
+
+    # 2. Get the timezone name from the coordinates
+    tf = TimezoneFinder()
+    timezone_name = tf.timezone_at(lng=location.longitude, lat=location.latitude)
+
+    if not timezone_name:
+        return f"Could not find timezone for {city_name}"
+
+    # 3. Get the current time in that timezone
+    # Using pytz
+    local_timezone = pytz.timezone(timezone_name)
+    current_time = datetime.now(local_timezone)
+
+    try:
+        return jsonify({
+        "city": city_name,
+        "timezone": timezone_name,
+        "current_time": current_time.strftime("%Y-%m-%d %H:%M:%S"),
+        "latitude": location.latitude,
+        "longitude": location.longitude
+        })
+    except Exception as e:
+            return jsonify({"error": str(e)}), 500     
+
+
+@app.route("/get_city_flights", methods=['POST'])
+def get_city_flights():
+    data = request.get_json()
+    city_name = data.get('city')
 
 @app.route('/get_city_events', methods=['POST'])
 def get_city_events():
