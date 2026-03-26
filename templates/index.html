@@ -34,7 +34,7 @@
       </div>
 
       <div id="results1" class="time-container"></div>
-      <div id="results2" class="forecast-container"></div>
+      <div id="results2"></div>
       <div id="results3" class="events-container"></div>
     </div>
 
@@ -72,6 +72,7 @@
           const timezone = data.timezone;
           const time = data.current_time;
 
+          results1Div.innerHTML += `<h2>Time</h2>`;
           results1Div.innerHTML += `<div class="time-card">
             <p><strong>City Timezone: </strong>${timezone}</p>
             <p><strong>Current Time: </strong>${time}</p>
@@ -97,6 +98,8 @@
           const data = await response2.json();
           results2Div.innerHTML = "";
 
+          results2Div.innerHTML += `<h2>Weather</h2><div id="results22" class="forecast-container"></div>`;
+          results22Div = document.getElementById("results22");
           data.forEach((day) => {
             // Create a card for each forecast day
             const dateObj = new Date(day.date);
@@ -108,7 +111,7 @@
               day: "numeric",
             });
 
-            results2Div.innerHTML += `
+            results22Div.innerHTML += `
                 <div class="weather-card">
                     <h3>${dayName}</h3>
                     <span class="date">${shortDate}</span>
@@ -138,6 +141,7 @@
           const data = await response3.json();
           results3Div.innerHTML = "";
 
+          results3Div.innerHTML += `<h2>Events</h2>`;
           data.forEach((event) => {
             // Extracting fields from the SerpApi event object
             const title = event.title;
