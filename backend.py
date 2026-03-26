@@ -9,12 +9,16 @@ from timezonefinder import TimezoneFinder
 from datetime import datetime
 import pytz # Use zoneinfo if on Python 3.9+
 
-    #email form
+load_dotenv()
+app = Flask(__name__)
+API_KEY = os.getenv('OPENWEATHER_API_KEY')
+SERP_API_KEY = os.getenv('SERP_API_KEY')
 
 def send_email_summary(weather, events, email):
-    url = "http://localhost:5678/webhook/send-email"
+    url = "http://ec2-18-225-195-196.us-east-2.compute.amazonaws.com:5678/webhook/send-email"
 
     response = requests.post(url, json={
+        "city": city,
         "weather": weather,
         "events": events,
         "email": email
@@ -22,14 +26,26 @@ def send_email_summary(weather, events, email):
 
     return response.json()
 
-load_dotenv()
-app = Flask(__name__)
-API_KEY = os.getenv('OPENWEATHER_API_KEY')
-SERP_API_KEY = os.getenv('SERP_API_KEY')
-
 @app.route('/')
 def index():
     return render_template('index.html')
+
+# email
+@app.route('/send_email', methods=['POST'])
+def send_email():
+    data = request.get_json()
+
+    city = data.get('city')
+    weather = data.get('weather')
+    events = data.get('events')
+    email = data.get('email')
+
+    try:
+        send_email_summary(weather, events, email)
+        return jsonify({"status": "Email sent"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/get_city_time", methods=['POST'])
 def get_time_and_timezone():
@@ -170,22 +186,6 @@ def get_weather():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route('/send_email', methods=['POST'])
-def send_email():
-    data = request.get_json()
-
-    weather = data.get('weather')
-    events = data.get('events')
-    email = data.get('email')
-
-    if not email:
-        return jsonify({"error": "Email is required"}), 400
-
-    try:
-        send_email_summary(weather, events, email)
-        return jsonify({"status": "Email sent successfully"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

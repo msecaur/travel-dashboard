@@ -33,13 +33,16 @@
         /><button onclick="sendCityData()">Get City Information</button>
       </div>
 
-<form action="/send_email" method="POST">
+<form id="emailForm">
     <input type="hidden" name="weather" value="{{ weather }}">
     <input type="hidden" name="events" value="{{ events }}">
+    <input type="hidden" name="city" value="{{ city }}">
 
     <input type="email" name="email" placeholder="Enter your email" required>
     <button type="submit">Send to Email</button>
 </form>
+
+<p id="statusMessage"></p>
 
       <div id="results1" class="time-container"></div>
       <div id="results2"></div>
@@ -225,5 +228,37 @@
         }
       }
     </script>
+
+<script>
+document.getElementById("emailForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    const data = {
+        city: formData.get("city"),
+        weather: formData.get("weather"),
+        events: formData.get("events"),
+        email: formData.get("email")
+    };
+
+    try {
+        const response = await fetch("/send_email", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        document.getElementById("statusMessage").innerText = "Email sent!";
+    } catch (error) {
+        document.getElementById("statusMessage").innerText = "Error sending email.";
+    }
+});
+</script>
+
   </body>
 </html>
