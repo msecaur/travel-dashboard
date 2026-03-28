@@ -15,7 +15,7 @@ API_KEY = os.getenv('OPENWEATHER_API_KEY')
 SERP_API_KEY = os.getenv('SERP_API_KEY')
 
 def send_email_summary(city, weather, events, email):
-    url = "http://localhost:5678/webhook/send-email"
+    url = "http://ec2-18-225-195-196.us-east-2.compute.amazonaws.com:5678/webhook/send-email"
 
     response = requests.post(url, json={
         "city": city,
