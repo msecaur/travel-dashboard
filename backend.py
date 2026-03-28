@@ -14,7 +14,7 @@ app = Flask(__name__)
 API_KEY = os.getenv('OPENWEATHER_API_KEY')
 SERP_API_KEY = os.getenv('SERP_API_KEY')
 
-def send_email_summary(weather, events, email):
+def send_email_summary(city, weather, events, email):
     url = "http://ec2-18-225-195-196.us-east-2.compute.amazonaws.com:5678/webhook/send-email"
 
     response = requests.post(url, json={
@@ -41,7 +41,7 @@ def send_email():
     email = data.get('email')
 
     try:
-        send_email_summary(weather, events, email)
+        send_email_summary(city, weather, events, email)
         return jsonify({"status": "Email sent"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
