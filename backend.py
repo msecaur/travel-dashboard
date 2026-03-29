@@ -14,6 +14,8 @@ app = Flask(__name__)
 API_KEY = os.getenv('OPENWEATHER_API_KEY')
 SERP_API_KEY = os.getenv('SERP_API_KEY')
 
+# need to use docker to install n8n on ec2 otherwise it will break
+# might need to switch to lamda if it's easier
 def send_email_summary(city, weather, events, email):
     url = "http://ec2-18-225-195-196.us-east-2.compute.amazonaws.com:5678/webhook/send-email"
 
