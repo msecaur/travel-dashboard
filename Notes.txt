@@ -231,3 +231,11 @@ sudo systemctl restart myflaskapp.service
 
 sudo systemctl status myflaskapp
 sudo systemctl restart myflaskapp
+
+
+3/29/2026
+update the new ip address everytime you reset:
+1. sudo nano /etc/nginx/sites-available/myflaskapp
+2. update the ip address
+3. control + O to write out, control + X to exit
+4. sudo systemctl restart myflaskapp 
