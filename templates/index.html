@@ -34,10 +34,6 @@
       </div>
 
 <form id="emailForm">
-    <input type="hidden" name="weather" value="{{ weather }}">
-    <input type="hidden" name="events" value="{{ events }}">
-    <input type="hidden" name="city" value="{{ city }}">
-
     <input type="email" name="email" placeholder="Enter your email" required>
     <button type="submit">Send to Email</button>
 </form>
@@ -50,8 +46,12 @@
     </div>
 
     <script>
+      let latestCity = "";
+      let latestWeather = [];
+      let latestEvents = [];
       async function sendCityData() {
         const city = document.getElementById("city").value;
+        latestCity = city;
         const results1Div = document.getElementById("results1");
         const results2Div = document.getElementById("results2");
         const results3Div = document.getElementById("results3");
@@ -107,6 +107,7 @@
           }
 
           const data = await response2.json();
+          latestWeather = data;
           results2Div.innerHTML = "";
 
           results2Div.innerHTML += `<h2>Weather</h2><div id="results22" class="forecast-container"></div>`;
@@ -150,6 +151,7 @@
           }
 
           const data = await response3.json();
+          latestEvents = data;
           results3Div.innerHTML = "";
 
           results3Div.innerHTML += `<h2>Events</h2>`;
@@ -233,14 +235,14 @@
 document.getElementById("emailForm").addEventListener("submit", async function(e) {
     e.preventDefault();
 
-    const formData = new FormData(this);
+    const email = document.querySelector("input[name='email']").value;
 
     const data = {
-        city: formData.get("city"),
-        weather: formData.get("weather"),
-        events: formData.get("events"),
-        email: formData.get("email")
-    };
+      city: latestCity,
+      weather: latestWeather,
+      events: latestEvents,
+      email: email
+};
 
     try {
         const response = await fetch("/send_email", {
